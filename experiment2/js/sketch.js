@@ -37,6 +37,7 @@ function resizeScreen() {
 // setup() function is called once when the program starts
 function setup() {
   // place our canvas, making it fit our container
+  createButton("reimagine").mousePressed(() => seed++);
   canvasContainer = $("#canvas-container");
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
@@ -52,25 +53,32 @@ function setup() {
 }
 
 // draw() function is called repeatedly, it's the main animation loop
+let seed = 0;
 function draw() {
-  background(220);    
-  // call a method on the instance
-  myInstance.myMethod();
-
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
+  randomSeed(seed);
+  console.log("seed: " + seed)
+  //background(100);
   noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
-
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+  fill('#89ade4'); //Sky
+  rect(0, 0, width, height * 3/5);
+  fill('#75F336'); //Grass
+  rect(0, height * 3/5, width, height * 3/ 5);
+  fill('#FFFFFF');
+  for(let i = 0; i < 3; i++){ //Clouds
+    ellipse(random(50, width-50), random(0, 20) + 20, 50, 30)
+  }
+  fill('#C6BfB8'); //Rocks
+  for(let i = 0; i < 5; i++){
+    ellipse(random(20, width-20), random(-10 + height*3/5, 30 + height*3/5) + 20, 30, 20)
+  }
+  for(let i = 0; i < 10; i++){
+    fill('#725C42');
+    let randy = random(0,30);
+    let randx = random(0, width-20);
+    rect(randx, (height/5)-10 + randy, 20, height * 3/5);
+    fill('#42692F');
+    triangle(randx + 10, (height/5) + (randy-50), randx-10, (height/5) + randy - 9, randx+30, (height/5) + randy - 9);
+  }
 }
 
 // mousePressed() function is called once after every time a mouse button is pressed
