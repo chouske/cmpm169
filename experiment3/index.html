@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Experiment 3 - Alternate Worlds</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -32,11 +32,17 @@
 	<main id="content">
 		<section>
 
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 3 - Alternate Worlds</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
-					<!-- canvas will be added here -->
+					<button id="reseedButton">
+						reseed
+					  </button>
+					  <span id="seedReport"></span>
+					  <hr />
+					  <span id="canvasContainer" style="margin: 10px;"></span>
+					  <textarea cols="20" rows="20" id="asciiBox" style="opacity: 0.5; letter-spacing: 1ex; width: 320px; margin: 10px; font-family: monospace;"></textarea>
 				</div>
                 <div class="fullscreen-box">
                     <button id="fullscreen">Fullscreen</button>
@@ -45,17 +51,19 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>In this experiment a dungeon was generated and a room with various biomes around it was generated</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>I used a tilemap  to create tiles, and I had an array storing characters that represented each type of tile</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>The process was somewhat hard. For starters, I got messed up because the tilemap is accessed using coordinates responding to x, y, but the data array is accessed using y, x.
+					Understanding what drawcontext did was somewhat confusing, and getting the fog to work the way I wanted was a little difficult. Also, fixing issues with my biome generation took some time.
+				</p>
 			</div>
 
 		</section>
