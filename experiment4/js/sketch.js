@@ -13,7 +13,6 @@ let tile_height_step_main; // A height step is half a tile's height
 let tile_rows, tile_columns;
 let camera_offset;
 let camera_velocity;
-
 /////////////////////////////
 // Transforms between coordinate systems
 // These are actually slightly weirder than in full 3d...
@@ -56,6 +55,7 @@ function worldOffsetToCamera([world_x, world_y]) {
 }
 
 function preload() {
+  
   if (window.p3_preload) {
     window.p3_preload();
   }
@@ -108,7 +108,7 @@ function mouseClicked() {
   }
   return false;
 }
-
+let cloudAlpha;
 function draw() {
   // Keyboard controls!
   if (keyIsDown(LEFT_ARROW)) {
@@ -170,7 +170,16 @@ function draw() {
   }
 
   describeMouseTile(world_pos, [camera_offset.x, camera_offset.y]);
-
+  let cloudColor = color('#0000FF');
+  if(cloudAlpha == undefined){
+     cloudAlpha = noise(millis())*100;
+  }
+  cloudColor.setAlpha(cloudAlpha);
+  fill(cloudColor);
+  rect(0, 0, 800, 400);
+  if((millis()%1000) > 900){
+    cloudAlpha = noise(millis())*100; 
+  }
   if (window.p3_drawAfter) {
     window.p3_drawAfter();
   }
@@ -222,13 +231,19 @@ function drawTile([world_x, world_y], [camera_x, camera_y]) {
     p3_drawSelectedTile
     p3_drawAfter
 */
-
-function p3_preload() {}
+let jaguarImg;
+let parrotImg;
+let monkeyImg;
+function p3_preload() {
+  jaguarImg = loadImage('https://cdn.glitch.global/8e50f576-88e9-4149-8ebc-3918b7e69c66/06505948-7f6b-4684-b25b-ca65c7b98f45.image.png?v=1714255399019');
+  parrotImg = loadImage('https://cdn.glitch.global/8e50f576-88e9-4149-8ebc-3918b7e69c66/252bde0e-8fff-4eab-b518-fd2772364da6.image.png?v=1714255661982');
+  monkeyImg = loadImage('https://cdn.glitch.global/8e50f576-88e9-4149-8ebc-3918b7e69c66/54242482-a5b5-48d8-b9fe-8f96eb0ab7fb.image.png?v=1714256172216');
+}
 
 function p3_setup() {}
 
 let worldSeed;
-
+let trees = {};
 function p3_worldKeyChanged(key) {
   worldSeed = XXH.h32(key, 0);
   noiseSeed(worldSeed);
@@ -244,45 +259,34 @@ function p3_tileHeight() {
 
 let [tw, th] = [p3_tileWidth(), p3_tileHeight()];
 
-let clicks = {};
+
 //let toppings = {};
 function p3_tileClicked(i, j) {
   let key = [i, j];
-  clicks[key] = 1 + (clicks[key] | 0);
-  /*if(toppings[key] == undefined){
-    toppings[key] = Math.floor(random(3));
+  if(trees[key] == 0){
+    trees[key] = 1;
   }
   else{
-    if(toppings[key] != 2){
-      toppings[key]++;
-    } 
-    else{
-      toppings[key] = 0;
-    }
-  }*/
-  
+    trees[key] = 0;
+  }
 }
 
 function p3_drawBefore() {}
 
 function p3_drawTile(i, j) {
   noStroke();
-  let whichTile = XXH.h32("tile:" + [i, j], worldSeed) % 2;
-  let whichColor = XXH.h32("cheesecolor:", worldSeed) % 2;
-  if (whichTile == 0){
-    fill('#87CEEB');
-  }else if(whichTile == 1){//Cheese
+  let whichTile = XXH.h32("tile:" + [i, j], worldSeed) % 4;
+  let whichColor = XXH.h32("groundcolor:", worldSeed) % 2;
+  if (whichTile != 3){
+    fill('#377F03');
+  }else if(whichTile == 3){
     if(whichColor == 0){
-      fill('#F2F1E6');
+      fill('#2AAA8A');
     }
     else{
-      fill('#FFFFFF');
+      fill('#416bdf');
     }
   }
-  /*else{
-    fill('#FFA600');
-  }*/
-
   push();
 
   beginShape();
@@ -291,52 +295,37 @@ function p3_drawTile(i, j) {
   vertex(tw, 0);
   vertex(0, -th);
   endShape(CLOSE);
-  
-  //let n = clicks[[i, j]] | 0;
-  //if (n % 2 == 1) {
-    /*fill(93, 129, 76, 255);
-    ellipse(0, 0, 10, 5);
-    translate(0, -10);
-    fill(255, 255, 100, 128);
-    ellipse(0, 0, 10, 10);*/
-  //}
-  let addRand = Math.sin(0.001*millis())*25;
-  let isSun = XXH.h32("isSun" + [i, j], worldSeed);//Do sun
-  if(((isSun.toNumber()%100) == 99) && (whichTile == 0)){
-    /*fill('#000000')
-    ellipse(0, 0, 42, 21)*/ 
-    //console.log(addRand);
-    fill(249 + addRand, 215 + addRand, 28);
-    ellipse(0, 0, 80, 40);
+  let treeX = (XXH.h32("treePos" + [i, j], worldSeed) % 40) - 20; 
+  let isTree = XXH.h32("isTree" + [i, j], worldSeed);//Do tree
+  if(trees[[i,j]] == undefined){
+      if(((isTree.toNumber()%10) <= 7) && (whichTile != 3)){
+        trees[[i,j]] = 1;
+      }
+      else{
+        trees[[i,j]] = 0;
+      }
   }
-  let worldType = XXH.h32("worldtype:", worldSeed) % 2;
-  if(worldType == 0){
-    let isBean = XXH.h32("isBean" + [i, j], worldSeed); //Beanstalk
-    if(((isBean.toNumber()%100) == 99) && (whichTile == 1)){
-      fill(16, 238, 16);
-      rect(-2.5, -10, 5, 64);
-      ellipse(-5, 0, 10, 5)
-      ellipse(5, 10, 10, 5)
-      ellipse(-5, 20, 10, 5)
-    }
+  
+  if(trees[[i,j]] == 1){
+    fill('#964B00');
+    rect(-2.5 + treeX, -50, 5, 60);
+    fill('#13742E');
+    rect(-2.5 + treeX-25, -50, 60, 10);
   }
   else{
-    let isUFO = XXH.h32("isUFO" + [i, j], worldSeed); //UFO
-    if(((isUFO.toNumber()%100) == 99) && (whichTile == 0)){
-      fill(128, 128, 128);
-      ellipse(0, 0, 40, 20);
-      fill('#02ccfe');
-      ellipse(0, -5, 20, 10);
+    if(((XXH.h32("isAnimal" + [i, j], worldSeed) % 25) == 24) && (whichTile != 3)){
+      let whichAnimal = (XXH.h32("isTree" + [i, j], worldSeed) % 3)
+      if(whichAnimal == 0){
+        image(jaguarImg, -25, -25, 50, 50);
+      }
+      else if(whichAnimal == 1){
+        image(parrotImg, -25, -25, 50, 50);
+      }
+      else{
+        image(monkeyImg, -25, -25, 50, 50);
+      }
     }
   }
-  if((clicks[[i,j]] >= 1) && (whichTile == 0)){//Click for star
-    fill(249 + addRand, 215 + addRand, 28);
-    triangle(-10, 10, 10, 10, 0, -10)
-    triangle(-10, -5, 10, -5, 0, 15)
-  }
-
-  
-
   pop();
 }
 
